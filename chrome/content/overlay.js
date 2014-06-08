@@ -135,17 +135,103 @@ remotecontrol = {
 
                 if (command == "reload") {
                     command = "window.location.reload()";
-                } else if(command == "newtab") {
+                } else if((/^tab-new\w*(.*)$/).test(command) ) {
+                    var newUrl = "about:blank";
+                    var match = /^tab-new\w*(.*)$/.exec(command);
+                    if (!(match==null || 0 === match[1].length)){
+                        newUrl = match[1];
+                    }
                     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                         .getService(Components.interfaces.nsIWindowMediator);
                     var mainWindow = wm.getMostRecentWindow("navigator:browser");
-                    mainWindow.getBrowser().selectedTab = mainWindow.getBrowser().addTab("about:blank");
+                    mainWindow.getBrowser().selectedTab = mainWindow.getBrowser().addTab(newUrl);
 
 
                     var outStr = JSON.stringify({result: "OK"}) + "\n";
                     this.utf8Output.writeString(outStr);
                     return;
+                }  else if(command == "tab-close") {
+                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+                    var mainWindow = wm.getMostRecentWindow("navigator:browser");
+                    mainWindow.getBrowser().removeCurrentTab();
+
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                }  else if(command == "tab-close-all") {
+                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+                    var mainWindow = wm.getMostRecentWindow("navigator:browser");
+                    mainWindow.getBrowser().removeAllTabsBut(mainWindow.getBrowser().selectedTab);
+
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                } else if(command == "tab-next") {
+                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+                    var mainWindow = wm.getMostRecentWindow("navigator:browser");
+                    mainWindow.getBrowser().tabContainer.advanceSelectedTab(1, true);
+
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                } else if(command == "tab-prev") {
+                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+                    var mainWindow = wm.getMostRecentWindow("navigator:browser");
+                    mainWindow.getBrowser().tabContainer.advanceSelectedTab(-1, true);
+
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                } else if(command == "window-new") {
+                    window.open()
+
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                 } else if(command == "page-stop") {
+                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+                    var mainWindow = wm.getMostRecentWindow("navigator:browser");
+                    mainWindow.getBrowser().stop();
+
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                } else if(command == "window-close") {
+                    var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+                        .getService(Components.interfaces.nsIWindowWatcher);
+                    var win = ww.openWindow(null, "chrome://myextension/content/about.xul",
+                        "aboutMyExtension", "chrome,centerscreen", null);
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                    
+                } else if(command == "fullscreen") {
+                   setTimeout('window.fullScreen = true;',1);
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
+                } else if(command == "full-regular") {
+                   setTimeout('window.fullScreen = false;',1);
+
+                    var outStr = JSON.stringify({result: "OK"}) + "\n";
+                    this.utf8Output.writeString(outStr);
+                    return;
                 }
+                
+                
 
                 var reader = this;
                 var callback = function (result) {
