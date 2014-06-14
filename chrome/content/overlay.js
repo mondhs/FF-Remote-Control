@@ -19,6 +19,7 @@ function object(o) {
 
 function deArray(log) {
     return function(msg) {
+      try{
         if (typeof(msg) != "string") {
             for(var i = 0; i < msg.length; ++i) {
                 log(msg[i]);
@@ -26,6 +27,10 @@ function deArray(log) {
         } else {
             log(msg);
         }
+      }catch(e){
+        console.log("Error to log message: " + e)
+        console.log(msg)
+      }
     }
 }
 
@@ -59,6 +64,7 @@ remotecontrol = {
             typeof(Firebug.Console) == "object") {
             this.log = Firebug.Console.log;
         } else if (typeof(console) == "object") {
+	    console.log("firefox");
             this.log = deArray(console.log);
         } else {
                 throw "There's no way to log anything :( " + msg;
